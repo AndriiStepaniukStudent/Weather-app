@@ -1,10 +1,39 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, StatusBar, Image, TextInput, Button, Alert } from 'react-native'; // Додали Alert для попапа з повідомленням про помилку
+import { View, Text, StyleSheet, StatusBar, Image, TextInput, Button, Alert } from 'react-native'; 
 
 interface WeatherData {
   temperatureCelsius: number;
   description: string;
   city: string;
+}
+
+class WeatherDataBuilder {
+  private temperatureCelsius: number = 0;
+  private description: string = '';
+  private city: string = '';
+
+  withTemperatureCelsius(temperatureCelsius: number): WeatherDataBuilder {
+    this.temperatureCelsius = temperatureCelsius;
+    return this;
+  }
+
+  withDescription(description: string): WeatherDataBuilder {
+    this.description = description;
+    return this;
+  }
+
+  withCity(city: string): WeatherDataBuilder {
+    this.city = city;
+    return this;
+  }
+
+  build(): WeatherData {
+    return {
+      temperatureCelsius: this.temperatureCelsius,
+      description: this.description,
+      city: this.city,
+    };
+  }
 }
 
 const Main: React.FC = () => {
@@ -40,8 +69,15 @@ const Main: React.FC = () => {
       const description = data.weather[0].main;
       const city = data.name;
 
-      setWeatherData({ temperatureCelsius, description, city });
+      const weatherData = new WeatherDataBuilder()
+        .withTemperatureCelsius(temperatureCelsius)
+        .withDescription(description)
+        .withCity(city)
+        .build();
+
+      setWeatherData(weatherData);
     } catch (error) {
+      console.error('Error fetching weather data:', error);
       Alert.alert('Error', 'City not found'); // Виводимо попап з повідомленням про помилку
     }
   };
